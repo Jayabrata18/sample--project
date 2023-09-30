@@ -1,8 +1,7 @@
-name: deploy-to-eb
-
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   deploy:
@@ -21,6 +20,12 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: "ap-south-1"
 
+      # Check if the Elastic Beanstalk application exists or create it.
+      - name: Check or Create ElasticBeanstalk Application
+        run: |
+          aws elasticbeanstalk describe-applications --application-names "sample--project" || \
+          aws elasticbeanstalk create-application --application-name "sample--project"
+
       - name: Upload package to S3 bucket
         run: aws s3 cp deploy_package.zip s3://sample-hello-world-app/
 
@@ -30,8 +35,8 @@ jobs:
           --application-name sample--project \
           --source-bundle S3Bucket="sample-hello-world-app",S3Key="deploy_package.zip" \
           --version-label "ver-${{ github.sha }}" \
-          --description "commit-sha-${{ github.sha }}"
-          --auto-create-application true
+          --description "commit-sha-${{ github.sha }}" \
+          --auto-create-application-version true
 
       - name: Deploy new ElasticBeanstalk Application Version
         run: aws elasticbeanstalk update-environment --environment-name sample--project-env-1 --version-label "ver-${{ github.sha }}"
