@@ -36,7 +36,7 @@ jobs:
           --source-bundle S3Bucket="sample-hello-world-app",S3Key="deploy_package.zip" \
           --version-label "ver-${{ github.sha }}" \
           --description "commit-sha-${{ github.sha }}" \
-          --auto-create-application-version true
+
 
       - name: Deploy new ElasticBeanstalk Application Version
         run: aws elasticbeanstalk update-environment --environment-name sample--project-env-1 --version-label "ver-${{ github.sha }}"
